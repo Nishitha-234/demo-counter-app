@@ -1,8 +1,10 @@
-FROM maven:3.6-jdk-8 as BUILD
-COPY src /usr/src/myapp/src
-COPY pom.xml /usr/src/myapp
-RUN mvn clean package
+FROM maven as build
+WORKDIR /app
+COPY ..
+RUN mvn clean install
 
-FROM tomcat:7.0
-COPY --from=BUILD /usr/src/myapp/target/Uber.war /usr/local/tomcat/webapps/Uber.war
-EXPOSE 8080
+FROM openjdk:11.0
+WORKDIR /app
+COPY --from=build /app/target/Uber.jar /app/
+EXPOSE 9090
+CMD [ "java","-jar","Uber.jar" ]
